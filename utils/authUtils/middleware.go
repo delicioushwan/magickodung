@@ -1,4 +1,4 @@
-package auth
+package authUtils
 
 import (
 	"github.com/labstack/echo/v4"

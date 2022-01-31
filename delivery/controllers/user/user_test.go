@@ -3,23 +3,22 @@ package user
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/delicioushwan/magickodung/configs"
-	"github.com/delicioushwan/magickodung/delivery/controllers/auth"
 	"github.com/delicioushwan/magickodung/entities"
-	"github.com/delicioushwan/magickodung/repository/user"
+	userRepo "github.com/delicioushwan/magickodung/repository/user"
 	"github.com/delicioushwan/magickodung/utils"
+	"github.com/delicioushwan/magickodung/utils/httpUtils"
 
 	"github.com/labstack/echo/v4"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestUsers(t *testing.T) {
+func TestUser(t *testing.T) {
 
 	config := configs.GetConfig()
 	db := utils.InitTtestDB(config)
@@ -30,35 +29,41 @@ func TestUsers(t *testing.T) {
 	dummyUser.Account = "TestAccount1"
 	dummyUser.Pwd = "TestPwd1"
 
-	useRep := user.NewUsersRepo(db)
-	_, err := useRep.Create(dummyUser)
+	userRepo := userRepo.NewUsersRepo(db)
+	_, err := userRepo.Create(dummyUser)
 	if err != nil {
 		fmt.Println(err)
 	}
 	ec := echo.New()
+	ec.Validator = httpUtils.NewValidator()
 
-	t.Run("POST /users/signup", func(t *testing.T) {
+	t.Run("회원가입 시도 -> 성공", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
-			"name":     "TestAccount1",
-			"password": "TestPwd1",
+			"account": "TestAccount2",
+			"pwd": "TestPwd1",
 		})
 
-		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
+		req := httptest.NewRequest(http.MethodPost, "/users/signup", bytes.NewBuffer(reqBody))
 		res := httptest.NewRecorder()
 
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		context := ec.NewContext(req, res)
-		context.SetPath("/users/signup")
 
-		userCon := NewUsersControllers(mockUserRepository{})
-		userCon.PostUserCtrl()(context)
+		userCon := NewUsersControllers(userRepo)
 
-		responses := RegisterUserResponseFormat{}
-		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-
-		assert.Equal(t, 200, res.Code)
-
+		if assert.NoError(t, userCon.PostUserCtrl()(context)) {
+			assert.Equal(t, http.StatusOK, res.Code)
+		}
 	})
+
+	// t.Run("회원가입 시도 -> 파라미터 없어서 실패", func(t *testing.T){
+	// 	reqBody, _ := json.Marshal(map[string]string{
+	// 		"name":     "TestAccount1",
+	// 		"password": "TestPwd1",
+	// 	})
+
+
+	// })
 // 	t.Run("POST /users/login", func(t *testing.T) {
 // 		reqBody, _ := json.Marshal(map[string]string{
 // 			"name":     "TestAccount1",
@@ -83,120 +88,4 @@ func TestUsers(t *testing.T) {
 
 // 	})
 
-}
-
-func TestFalseUsers(t *testing.T) {
-	e := echo.New()
-
-	t.Run("POST /users/signup", func(t *testing.T) {
-
-		req := httptest.NewRequest(http.MethodPost, "/", nil)
-		res := httptest.NewRecorder()
-
-		req.Header.Set("Content-Type", "application/json")
-		context := e.NewContext(req, res)
-		context.SetPath("/users/signup")
-
-		userCon := NewUsersControllers(mockFalseUserRepository{})
-		userCon.PostUserCtrl()(context)
-
-		responses := RegisterUserResponseFormat{}
-		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-
-		assert.Equal(t, responses.Message, "Internal Server Error")
-		assert.Equal(t, res.Code, 500)
-	})
-	t.Run("POST /users/signup", func(t *testing.T) {
-
-		reqBody, _ := json.Marshal(map[string]int{
-			"name": 1,
-		})
-		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-		res := httptest.NewRecorder()
-
-		req.Header.Set("Content-Type", "application/json")
-		context := e.NewContext(req, res)
-		context.SetPath("/users/signup")
-
-		userCon := NewUsersControllers(mockFalseUserRepository{})
-		userCon.PostUserCtrl()(context)
-
-		responses := RegisterUserResponseFormat{}
-		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-
-		assert.Equal(t, responses.Message, "Bad Request")
-		assert.Equal(t, res.Code, 400)
-	})
-	t.Run("POST /users/login", func(t *testing.T) {
-
-		req := httptest.NewRequest(http.MethodPost, "/", nil)
-		res := httptest.NewRecorder()
-
-		req.Header.Set("Content-Type", "application/json")
-		context := e.NewContext(req, res)
-		context.SetPath("/users/login")
-
-		authCon := auth.NewAuthControllers(mockFalseAuthRepository{})
-		authCon.LoginAuthCtrl()(context)
-
-		responses := LoginUserResponseFormat{}
-		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-
-		assert.Equal(t, responses.Message, "Internal Server Error")
-		assert.Equal(t, res.Code, 500)
-	})
-
-}
-
-type mockAuthRepository struct{}
-
-func (mua mockAuthRepository) Login(name, password string) (entities.User, error) {
-	return entities.User{UserId: 1, Account: "TestAccount1", Pwd: "TestPwd1"}, nil
-}
-
-type mockUserRepository struct{}
-
-func (mur mockUserRepository) GetAll() ([]entities.User, error) {
-	return []entities.User{
-		{Account: "TestAccount1", Pwd: "TestPwd1"},
-	}, nil
-}
-func (mur mockUserRepository) Get(userId int) (entities.User, error) {
-	return entities.User{Account: "TestAccount1", Pwd: "TestPwd1"}, nil
-}
-func (mur mockUserRepository) Create(newUser entities.User) (entities.User, error) {
-	return entities.User{Account: "TestAccount1", Pwd: "TestPwd1"}, nil
-}
-func (mur mockUserRepository) Update(updateUser entities.User, userId int) (entities.User, error) {
-	return entities.User{Account: "TestAccount1", Pwd: "TestPwd1"}, nil
-}
-func (mur mockUserRepository) Delete(userId int) (entities.User, error) {
-	return entities.User{UserId: 1, Account: "TestAccount1", Pwd: "TestPwd1"}, nil
-}
-
-// FALSE SECTION
-type mockFalseAuthRepository struct{}
-
-func (mua mockFalseAuthRepository) Login(account, pwd string) (entities.User, error) {
-	return entities.User{UserId: 1, Account: "TestAccount1", Pwd: "TestPwd1"}, errors.New("Bad Request")
-}
-
-type mockFalseUserRepository struct{}
-
-func (mur mockFalseUserRepository) GetAll() ([]entities.User, error) {
-	return []entities.User{
-		{Account: "TestAccount1", Pwd: "TestPwd1"},
-	}, errors.New("Bad Request")
-}
-func (mur mockFalseUserRepository) Get(userId int) (entities.User, error) {
-	return entities.User{Account: "TestAccount1", Pwd: "TestPwd1"}, errors.New("Bad Request")
-}
-func (mur mockFalseUserRepository) Create(newUser entities.User) (entities.User, error) {
-	return entities.User{Account: "TestAccount1", Pwd: "TestPwd1"}, errors.New("Bad Request")
-}
-func (mur mockFalseUserRepository) Update(updateUser entities.User, userId int) (entities.User, error) {
-	return entities.User{Account: "TestAccount1", Pwd: "TestPwd1"}, errors.New("Bad Request")
-}
-func (mur mockFalseUserRepository) Delete(userId int) (entities.User, error) {
-	return entities.User{Account: "TestAccount1", Pwd: "TestPwd1"}, errors.New("Bad Request")
 }

@@ -6,7 +6,7 @@ import (
 
 	"github.com/delicioushwan/magickodung/entities"
 	"github.com/delicioushwan/magickodung/repository/user"
-	auth "github.com/delicioushwan/magickodung/utils/authUtils"
+	"github.com/delicioushwan/magickodung/utils/authUtils"
 	"github.com/delicioushwan/magickodung/utils/httpUtils"
 
 	"golang.org/x/crypto/bcrypt"
@@ -28,7 +28,7 @@ func (uscon UsersController) PostUserCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		newUserReq := UserCommonRequestFormat{}
 
-		if err := c.Bind(&newUserReq); err != nil {
+		if err := httpUtils.BindAndValidate(c, &newUserReq); err != nil {
 			return httpUtils.NewBadRequest(err)
 		}
 
@@ -43,7 +43,7 @@ func (uscon UsersController) PostUserCtrl() echo.HandlerFunc {
 			return httpUtils.NewInternalServerError(err)
 		}
 
-		token, err := auth.MakeJWTToken(u.UserId)
+		token, err := authUtils.MakeJWTToken(u.UserId)
 		if err != nil {
 			return httpUtils.NewInternalServerError(err)
 		}

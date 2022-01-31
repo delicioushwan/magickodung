@@ -48,7 +48,7 @@ func (authcon AuthController) LoginAuthCtrl() echo.HandlerFunc {
 			}
 			return httpUtils.NewBadRequest(err)
 		} else {
-			return echo.ErrNotFound
+			return httpUtils.NewInternalServerError(err)
 		}
 
 	}
