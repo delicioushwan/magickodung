@@ -42,7 +42,7 @@ func main() {
 	userRepo := userRepo.NewUsersRepo(db)
 	userCtrl := user.NewUsersControllers(userRepo)
 
-	routes.RegisterPath(e,  userCtrl,)
+	routes.RegisterPath(e,  userCtrl)
 
 	go func() {
 		address := fmt.Sprintf(":%d", config.Port)	
