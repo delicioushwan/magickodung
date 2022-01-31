@@ -14,6 +14,7 @@ import (
 	"github.com/delicioushwan/magickodung/delivery/routes"
 	userRepo "github.com/delicioushwan/magickodung/repository/user"
 	"github.com/delicioushwan/magickodung/utils"
+	"github.com/delicioushwan/magickodung/utils/httpUtils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -28,8 +29,17 @@ func main() {
 	e.Use(middleware.RequestID())
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{}))
 	e.Use(middleware.Recover())
-	
-	
+	e.Use(middleware.Secure())
+	e.Use(middleware.Timeout())
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
+	}))
+	e.Validator = httpUtils.NewValidator()
+
+
 	userRepo := userRepo.NewUsersRepo(db)
 	userCtrl := user.NewUsersControllers(userRepo)
 

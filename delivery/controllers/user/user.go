@@ -6,7 +6,8 @@ import (
 
 	"github.com/delicioushwan/magickodung/entities"
 	"github.com/delicioushwan/magickodung/repository/user"
-	"github.com/delicioushwan/magickodung/utils/auth"
+	auth "github.com/delicioushwan/magickodung/utils/authUtils"
+	"github.com/delicioushwan/magickodung/utils/httpUtils"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -28,7 +29,7 @@ func (uscon UsersController) PostUserCtrl() echo.HandlerFunc {
 		newUserReq := UserCommonRequestFormat{}
 
 		if err := c.Bind(&newUserReq); err != nil {
-			return echo.ErrBadRequest
+			return httpUtils.NewBadRequest(err)
 		}
 
 		hash, _ := bcrypt.GenerateFromPassword([]byte(newUserReq.Pwd), 14)
@@ -39,12 +40,12 @@ func (uscon UsersController) PostUserCtrl() echo.HandlerFunc {
 
 		u, err := uscon.Repo.Create(newUser)
 		if err != nil {
-			return echo.ErrInternalServerError
+			return httpUtils.NewInternalServerError(err)
 		}
 		
 		token, err := auth.MakeJWTToken(u.UserId)
 		if err != nil {
-			return echo.ErrInternalServerError
+			return httpUtils.NewInternalServerError(err)
 		}
 	
 
@@ -59,12 +60,12 @@ func (uscon UsersController) GetUserCtrl() echo.HandlerFunc {
 		id, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
-			return echo.ErrBadRequest
+			return httpUtils.NewBadRequest(err)
 		}
 
 		user, err := uscon.Repo.Get(id)
 		if err != nil {
-			return echo.ErrNotFound
+			return httpUtils.NewInternalServerError(err)
 		}
 
 		return c.JSON(http.StatusOK, map[string]interface{}{

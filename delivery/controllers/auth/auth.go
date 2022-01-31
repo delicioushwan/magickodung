@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/delicioushwan/magickodung/repository/auth"
+	"github.com/delicioushwan/magickodung/utils/httpUtils"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
@@ -24,19 +25,19 @@ func (authcon AuthController) LoginAuthCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		req := LoginRequest{}
 		if err := c.Bind(&req); err != nil {
-			return echo.ErrBadRequest
+			return httpUtils.NewBadRequest(err)
 		}
 		checkedUser, err := authcon.Repo.Login(req.Account, req.Pwd)
 
 		if err != nil {
-			return echo.ErrInternalServerError
+			return httpUtils.NewInternalServerError(err)
 		}
 
 		if err != nil || checkedUser.UserId != 0 {
 			if req.Account != "" && req.Pwd != "" {
 				token, err := CreateTokenAuth(checkedUser.UserId)
 				if err != nil {
-					return echo.ErrInternalServerError
+					return httpUtils.NewInternalServerError(err)
 				}
 				return c.JSON(
 					http.StatusOK, map[string]interface{}{
@@ -45,7 +46,7 @@ func (authcon AuthController) LoginAuthCtrl() echo.HandlerFunc {
 					},
 				)
 			}
-			return echo.ErrBadRequest
+			return httpUtils.NewBadRequest(err)
 		} else {
 			return echo.ErrNotFound
 		}
