@@ -16,6 +16,7 @@ type AppConfig struct {
 	Username string
 	Password string
 	Secret string
+	TEST_DB_Port int
 }
 
 var lock = &sync.Mutex{}
@@ -38,10 +39,11 @@ func initConfig() *AppConfig {
 	defaultConfig.Driver = getEnv("DRIVER", "mysql")
 	defaultConfig.Name = getEnv("NAME", "magic_kodung")
 	defaultConfig.Address = getEnv("ADDRESS", "localhost")
-	defaultConfig.DB_Port = getEnvInt("DB_PORT",9987)
+	defaultConfig.DB_Port = getEnvInt("DB_PORT",9876)
 	defaultConfig.Username = getEnv("USERNAME", "root")
 	defaultConfig.Password = getEnv("PASSWORD", "password")
 	defaultConfig.Secret = getEnv("SECRET", "secret")
+	defaultConfig.TEST_DB_Port = getEnvInt("TEST_DB_PORT",9987)
 
 	fmt.Println(defaultConfig)
 

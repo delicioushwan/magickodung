@@ -3,6 +3,6 @@ package entities
 import "time"
 
 type Common struct {
-	CreatedAt    time.Time
-  UpdatedAt    time.Time
+	CreatedAt    time.Time `gorm:"autoUpdateTime:milli"`
+  UpdatedAt    time.Time `gorm:"autoCreateTime"`
 }

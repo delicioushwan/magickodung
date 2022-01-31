@@ -21,6 +21,6 @@ func (ur *UserRepository) Get(userId int) (entities.User, error) {
 }
 
 func (ur *UserRepository) Create(newUser entities.User) (entities.User, error) {
-	ur.db.Save(&newUser)
-	return newUser, nil
+	err := ur.db.Create(&newUser).Error
+	return newUser, err
 }

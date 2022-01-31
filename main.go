@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -44,10 +43,6 @@ func main() {
 	userCtrl := user.NewUsersControllers(userRepo)
 
 	routes.RegisterPath(e,  userCtrl,)
-
-	address := fmt.Sprintf(":%d", config.Port)
-	log.Fatal(e.Start(address))
-
 
 	go func() {
 		address := fmt.Sprintf(":%d", config.Port)	

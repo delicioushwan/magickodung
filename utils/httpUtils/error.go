@@ -1,6 +1,7 @@
 package httpUtils
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -28,7 +29,7 @@ func NewNotFoundError(msg string) error {
 func NewInternalServerError(err error) error {
 	msg := "interval server error occur"
 	if err != nil {
-		msg = err.Error()
+		fmt.Println(err.Error())
 	}
 	return NewError(http.StatusInternalServerError, msg)
 }

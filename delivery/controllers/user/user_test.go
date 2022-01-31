@@ -22,7 +22,7 @@ import (
 func TestUsers(t *testing.T) {
 
 	config := configs.GetConfig()
-	db := utils.InitDB(config)
+	db := utils.InitTtestDB(config)
 	db.Migrator().DropTable(&entities.User{})
 	db.AutoMigrate(&entities.User{})
 

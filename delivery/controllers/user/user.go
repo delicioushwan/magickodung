@@ -34,7 +34,7 @@ func (uscon UsersController) PostUserCtrl() echo.HandlerFunc {
 
 		hash, _ := bcrypt.GenerateFromPassword([]byte(newUserReq.Pwd), 14)
 		newUser := entities.User{
-			Account:     newUserReq.Account,
+			Account: newUserReq.Account,
 			Pwd: string(hash),
 		}
 
@@ -42,7 +42,7 @@ func (uscon UsersController) PostUserCtrl() echo.HandlerFunc {
 		if err != nil {
 			return httpUtils.NewInternalServerError(err)
 		}
-		
+
 		token, err := auth.MakeJWTToken(u.UserId)
 		if err != nil {
 			return httpUtils.NewInternalServerError(err)
