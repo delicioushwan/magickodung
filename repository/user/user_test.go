@@ -18,11 +18,11 @@ func TestUsersRepo(t *testing.T) {
 	db.AutoMigrate(&entities.User{})
 
 	userRepo := NewUsersRepo(db)
+	var mockInserUser entities.User
+	mockInserUser.Account = "TestName1"
+	mockInserUser.Pwd = "TestPassword1"
 
 	t.Run("Insert User into Database", func(t *testing.T) {
-		var mockInserUser entities.User
-		mockInserUser.Account = "TestName1"
-		mockInserUser.Pwd = "TestPassword1"
 
 		res, err := userRepo.Create(mockInserUser)
 		assert.Nil(t, err)
@@ -33,7 +33,16 @@ func TestUsersRepo(t *testing.T) {
 	t.Run("Select User from Database", func(t *testing.T) {
 		res, err := userRepo.Get(1)
 		assert.Nil(t, err)
-		assert.Equal(t, res, res)
+		//원하는 값을 가지고 있는지 체크하는 방법 찾아서 개선 필요
+		assert.Equal(t,res.Account, mockInserUser.Account)
+		assert.Equal(t,res.Pwd, mockInserUser.Pwd)
 	})
 
+	t.Run("Select User By account from Database", func(t *testing.T) {
+		res, err := userRepo.GetByAccount(mockInserUser.Account)
+		assert.Nil(t, err)
+		//원하는 값을 가지고 있는지 체크하는 방법 찾아서 개선 필요
+		assert.Equal(t,res.Account, mockInserUser.Account)
+		assert.Equal(t,res.Pwd, mockInserUser.Pwd)
+	})
 }

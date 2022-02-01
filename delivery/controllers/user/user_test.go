@@ -41,8 +41,10 @@ func TestUser(t *testing.T) {
 
 	userCtrl := NewUsersControllers(userRepo)
 
+	//라우터도 각 도메인별로 쪼개서 해당 모듈불러오면 되도록 수정 필요
 	usersGroup := ec.Group("/users")
-	usersGroup.POST("/signup", userCtrl.PostUserCtrl())
+	usersGroup.POST("/signup", userCtrl.Signup())
+	usersGroup.POST("/login", userCtrl.Login())
 
 	t.Run("회원가입 시도 -> 성공", func(t *testing.T) {
 		reqBody, _ := json.Marshal(map[string]string{
@@ -56,10 +58,12 @@ func TestUser(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 		ec.ServeHTTP(res, req)
+		
+		assert.NotEmpty(t,req.Header.Get("Authorization"))
 		assert.Equal(t, http.StatusOK, res.Code)
 	})
 
-	cases := []struct {
+	signUpcases := []struct {
 		name     string
 		account    string
 		password string
@@ -68,19 +72,21 @@ func TestUser(t *testing.T) {
 		msg  string
 	}{
 		{
-			name:     "회원가입 시도 -> 실패(missing account)",
-			password: "pass",
-			code:     http.StatusBadRequest,
-			msg:      "Field validation for 'Account' failed on the 'required' tag",
-		}, {
 			name:     "회원가입 시도 -> 실패(missing password)",
 			account:  "user@gmail.com",
+			password: "",
 			code:     http.StatusBadRequest,
 			msg:      "Field validation for 'Pwd' failed on the 'required' tag",
+		}, {
+			name:     "회원가입 시도 -> 실패(missing account)",
+			account:  "",
+			password: "123",
+			code:     http.StatusBadRequest,
+			msg:      "Field validation for 'Account' failed on the 'required' tag",
 		},
 	}
 
-	for _, tc := range cases {
+	for _, tc := range signUpcases {
 		t.Run(tc.name, func(t *testing.T) {
 			uri := "/users/signup"
 			res := httptest.NewRecorder()
@@ -99,36 +105,75 @@ func TestUser(t *testing.T) {
 		})
 	}
 
-	// t.Run("회원가입 시도 -> 파라미터 없어서 실패", func(t *testing.T){
-	// 	reqBody, _ := json.Marshal(map[string]string{
-	// 		"name":     "TestAccount1",
-	// 		"password": "TestPwd1",
-	// 	})
+	t.Run("로그인 시도 -> 성공", func(t *testing.T) {
+		reqBody, _ := json.Marshal(map[string]string{
+			"account": "TestAccount2",
+			"pwd": "TestPwd1",
+		})
+		uri := "/users/login"
+		req := httptest.NewRequest(http.MethodPost, uri, bytes.NewBuffer(reqBody))
+		res := httptest.NewRecorder()
 
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	// })
-// 	t.Run("POST /users/login", func(t *testing.T) {
-// 		reqBody, _ := json.Marshal(map[string]string{
-// 			"name":     "TestAccount1",
-// 			"password": "TestPwd1",
-// 		})
+		ec.ServeHTTP(res, req)
+		assert.NotEmpty(t,req.Header.Get("Authorization"))
+		assert.Equal(t, http.StatusOK, res.Code)
+	})
 
-// 		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
-// 		res := httptest.NewRecorder()
+	loginCases := []struct {
+		name     string
+		account    string
+		password string
+		// expected
+		code int
+		msg  string
+	}{
+		{
+			name:     "로그인 시도 -> 실패(missing password)",
+			account:  "user@gmail.com",
+			password: "",
+			code:     http.StatusBadRequest,
+			msg:      "Field validation for 'Pwd' failed on the 'required' tag",
+		}, {
+			name:     "로그인 시도 -> 실패(missing account)",
+			account:  "",
+			password: "123",
+			code:     http.StatusBadRequest,
+			msg:      "Field validation for 'Account' failed on the 'required' tag",
+		}, {
+			name:     "로그인 시도 -> 실패(unmatch password)",
+			account:  "TestAccount2",
+			password: "123",
+			code:     http.StatusBadRequest,
+			msg:      "아이디와 비밀번호를 확인해 주세요.",
+		}, {
+			name:     "로그인 시도 -> 실패(account does not exist)",
+			account:  "test",
+			password: "123",
+			code:     http.StatusBadRequest,
+			msg:      "존재하지 않는 회원입니다. \n 아이디와 비밀번호를 확인해 주세요.",
+		},
+		
+	}
 
-// 		req.Header.Set("Content-Type", "application/json")
-// 		context := ec.NewContext(req, res)
-// 		context.SetPath("/users/login")
+	for _, tc := range loginCases {
+		t.Run(tc.name, func(t *testing.T) {
+			uri := "/users/login"
+			res := httptest.NewRecorder()
+			reqBody, _ := json.Marshal(map[string]string{
+				"account": tc.account,
+				"pwd": tc.password,
+			})
+	
+			req, _ := http.NewRequest(http.MethodPost, uri,  bytes.NewBuffer(reqBody))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-// 		authCon := auth.NewAuthControllers(mockAuthRepository{})
-// 		authCon.LoginAuthCtrl()(context)
+			ec.ServeHTTP(res, req)
 
-// 		responses := LoginUserResponseFormat{}
-// 		json.Unmarshal([]byte(res.Body.Bytes()), &responses)
-
-// 		assert.Equal(t, "Successful Operation", responses.Message)
-// 		assert.Equal(t, 200, res.Code)
-
-// 	})
+			assert.Equal(t, tc.code, res.Code)
+			assert.Contains(t, gjson.Get(res.Body.String(), "errors.body").String(), tc.msg)
+		})
+	}
 
 }

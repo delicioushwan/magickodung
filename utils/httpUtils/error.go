@@ -11,8 +11,11 @@ type Error struct {
 	Errors map[string]interface{} `json:"errors"`
 }
 
-func NewUnauthorized() error {
-	return NewError(http.StatusUnauthorized, "auth required")
+func NewUnauthorized(msg string) error {
+	if msg == "" {
+		msg = "auth required"
+	}
+	return NewError(http.StatusUnauthorized, msg)
 }
 
 func NewStatusUnprocessableEntity(msg string) error {
@@ -34,10 +37,15 @@ func NewInternalServerError(err error) error {
 	return NewError(http.StatusInternalServerError, msg)
 }
 
-func NewBadRequest(err error) error {
+func NewBadRequest(err interface{}) error {
 	msg := "bad request"
 	if err != nil {
-		msg = err.Error()
+		switch v := err.(type) {
+		case string:
+			msg = v
+		case error:
+			msg = v.Error()
+		}
 	}
 
 	return NewError(http.StatusBadRequest, msg)

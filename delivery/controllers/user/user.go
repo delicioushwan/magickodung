@@ -22,23 +22,22 @@ func NewUsersControllers(usrep user.UserInterface) *UsersController {
 	return &UsersController{Repo: usrep}
 }
 
-// POST /user/register
-func (uscon UsersController) PostUserCtrl() echo.HandlerFunc {
+func (ctrl UsersController) Signup() echo.HandlerFunc {
 
 	return func(c echo.Context) error {
-		newUserReq := UserCommonRequestFormat{}
+		req := UserCommonRequestFormat{}
 
-		if err := httpUtils.BindAndValidate(c, &newUserReq); err != nil {
+		if err := httpUtils.BindAndValidate(c, &req); err != nil {
 			return httpUtils.NewBadRequest(err)
 		}
 
-		hash, _ := bcrypt.GenerateFromPassword([]byte(newUserReq.Pwd), 14)
+		hash, _ := bcrypt.GenerateFromPassword([]byte(req.Pwd), 14)
 		newUser := entities.User{
-			Account: newUserReq.Account,
+			Account: req.Account,
 			Pwd: string(hash),
 		}
 
-		u, err := uscon.Repo.Create(newUser)
+		u, err := ctrl.Repo.Create(newUser)
 		if err != nil {
 			return httpUtils.NewInternalServerError(err)
 		}
@@ -48,14 +47,15 @@ func (uscon UsersController) PostUserCtrl() echo.HandlerFunc {
 			return httpUtils.NewInternalServerError(err)
 		}
 	
+		authUtils.SetAuthToken(c.Request(), token)
 
 		return c.JSON(http.StatusOK, token)
 	}
 
 }
 
-// GET /users/:id
-func (uscon UsersController) GetUserCtrl() echo.HandlerFunc {
+
+func (ctrl UsersController) GetUserCtrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id, err := strconv.Atoi(c.Param("id"))
 
@@ -63,7 +63,7 @@ func (uscon UsersController) GetUserCtrl() echo.HandlerFunc {
 			return httpUtils.NewBadRequest(err)
 		}
 
-		user, err := uscon.Repo.Get(id)
+		user, err := ctrl.Repo.Get(id)
 		if err != nil {
 			return httpUtils.NewInternalServerError(err)
 		}
@@ -75,4 +75,31 @@ func (uscon UsersController) GetUserCtrl() echo.HandlerFunc {
 	}
 
 }
+
+func (ctrl UsersController) Login() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		req := UserCommonRequestFormat{}
+		if err := httpUtils.BindAndValidate(c, &req); err != nil {
+			return httpUtils.NewBadRequest(err)
+		}
+
+		user, err := ctrl.Repo.GetByAccount(req.Account)
+		if err != nil {
+			return httpUtils.NewBadRequest("존재하지 않는 회원입니다. \n 아이디와 비밀번호를 확인해 주세요.")
+		}
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Pwd), []byte(req.Pwd)); err != nil {
+			return httpUtils.NewBadRequest("아이디와 비밀번호를 확인해 주세요.")
+		}
+
+		token, err := authUtils.MakeJWTToken(user.UserId)
+		if err != nil {
+			return httpUtils.NewInternalServerError(err)
+		}
+
+		authUtils.SetAuthToken(c.Request(), token)
+
+		return c.JSON(http.StatusOK, token)
+	}
+}
+
 

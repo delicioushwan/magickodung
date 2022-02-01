@@ -16,8 +16,14 @@ func NewUsersRepo(db *gorm.DB) *UserRepository {
 
 func (ur *UserRepository) Get(userId int) (entities.User, error) {
 	user := entities.User{}
-	ur.db.Find(&user, userId)
-	return user, nil
+	err := ur.db.Find(&user, userId).Error
+	return user, err
+}
+
+func (ur *UserRepository) GetByAccount(account string) (entities.User, error) {
+	user := entities.User{}
+	err := ur.db.Where("account = ?", account).First(&user).Error
+	return user, err
 }
 
 func (ur *UserRepository) Create(newUser entities.User) (entities.User, error) {
