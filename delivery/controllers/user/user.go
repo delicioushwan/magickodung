@@ -23,14 +23,12 @@ func NewUsersControllers(usrep user.UserInterface) *UsersController {
 }
 
 func (ctrl UsersController) Signup() echo.HandlerFunc {
-
 	return func(c echo.Context) error {
 		req := UserCommonRequestFormat{}
-
 		if err := httpUtils.BindAndValidate(c, &req); err != nil {
 			return httpUtils.NewBadRequest(err)
 		}
-
+		
 		hash, _ := bcrypt.GenerateFromPassword([]byte(req.Pwd), 14)
 		newUser := entities.User{
 			Account: req.Account,
@@ -47,7 +45,7 @@ func (ctrl UsersController) Signup() echo.HandlerFunc {
 			return httpUtils.NewInternalServerError(err)
 		}
 	
-		authUtils.SetAuthToken(c.Request(), token)
+		authUtils.SetAuthCookie(c, token)
 
 		return c.JSON(http.StatusOK, token)
 	}
@@ -82,7 +80,7 @@ func (ctrl UsersController) Login() echo.HandlerFunc {
 		if err := httpUtils.BindAndValidate(c, &req); err != nil {
 			return httpUtils.NewBadRequest(err)
 		}
-
+		
 		user, err := ctrl.Repo.GetByAccount(req.Account)
 		if err != nil {
 			return httpUtils.NewBadRequest("존재하지 않는 회원입니다. \n 아이디와 비밀번호를 확인해 주세요.")
@@ -96,7 +94,7 @@ func (ctrl UsersController) Login() echo.HandlerFunc {
 			return httpUtils.NewInternalServerError(err)
 		}
 
-		authUtils.SetAuthToken(c.Request(), token)
+		authUtils.SetAuthCookie(c, token)
 
 		return c.JSON(http.StatusOK, token)
 	}

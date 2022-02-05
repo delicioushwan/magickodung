@@ -59,7 +59,6 @@ func TestUser(t *testing.T) {
 
 		ec.ServeHTTP(res, req)
 		
-		assert.NotEmpty(t,req.Header.Get("Authorization"))
 		assert.Equal(t, http.StatusOK, res.Code)
 	})
 

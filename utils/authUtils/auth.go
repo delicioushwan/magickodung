@@ -39,6 +39,12 @@ func CurrentUser(ctx echo.Context) uint {
 	return token.Claims.(*JWTClaims).UserID
 }
 
-func SetAuthToken(r *http.Request, token string) {
-	r.Header.Set("Authorization", token)
+func SetAuthCookie(c echo.Context, token string) {
+	cookie := new(http.Cookie)
+	cookie.Name = "access_token"
+	cookie.Value = token
+	cookie.HttpOnly = true
+	cookie.Path= "/"
+	cookie.Expires = time.Now().Add(24 * 30 * time.Hour)
+	c.SetCookie(cookie)
 }

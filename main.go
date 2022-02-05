@@ -32,12 +32,11 @@ func main() {
 	e.Use(middleware.Timeout())
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
-		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderCookie, echo.HeaderSetCookie},
+		AllowCredentials: true,
 	}))
-	e.Validator = httpUtils.NewValidator()
 
+	e.Validator = httpUtils.NewValidator()
 
 	userRepo := userRepo.NewUsersRepo(db)
 	userCtrl := user.NewUsersControllers(userRepo)
