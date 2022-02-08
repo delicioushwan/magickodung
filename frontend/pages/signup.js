@@ -21,6 +21,8 @@ export default function Login() {
         <input type="password" {...register("pwd", { required: true })} />
         <input type="submit" disabled={isLoading} />
       </form>
+      <button onClick={onPost}>post</button>
+      <button onClick={onGet}>get</button>
     </div>
   );
 }
@@ -29,4 +31,14 @@ async function onSubmitSignup({ account, pwd }, setLoading) {
   const response = await Axios.post("/users/signup", { account, pwd });
   console.log(response);
   setLoading(false);
+}
+
+async function onPost({ account, pwd }, setLoading) {
+  const response = await Axios.post("/test");
+  console.log(response);
+}
+
+async function onGet({ account, pwd }, setLoading) {
+  const response = await Axios.get("/test");
+  console.log(response);
 }

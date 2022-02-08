@@ -1,18 +1,23 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/delicioushwan/magickodung/delivery/controllers/user"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
+
+func Session (c echo.Context) error {
+		return c.JSON(http.StatusOK, "nice")
+	}
 
 func RegisterPath(
 	e *echo.Echo,
 	uctrl *user.UsersController,
 ) {
 
-	e.Use(middleware.RemoveTrailingSlash())
+	e.GET("/session", Session)
 
 	usersGroup := e.Group("/users")
 	usersGroup.POST("/signup", uctrl.Signup())

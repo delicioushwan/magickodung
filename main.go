@@ -13,6 +13,7 @@ import (
 	"github.com/delicioushwan/magickodung/delivery/routes"
 	userRepo "github.com/delicioushwan/magickodung/repository/user"
 	"github.com/delicioushwan/magickodung/utils"
+	"github.com/delicioushwan/magickodung/utils/authUtils"
 	"github.com/delicioushwan/magickodung/utils/httpUtils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -35,7 +36,10 @@ func main() {
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderCookie, echo.HeaderSetCookie},
 		AllowCredentials: true,
 	}))
+	e.Use(middleware.RemoveTrailingSlash())
 
+	AnonymousTokenMiddleware := authUtils.NewAnonymousTokenMiddleware(config.Secret)
+	e.Use(AnonymousTokenMiddleware)
 	e.Validator = httpUtils.NewValidator()
 
 	userRepo := userRepo.NewUsersRepo(db)
@@ -53,7 +57,7 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
