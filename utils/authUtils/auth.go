@@ -4,10 +4,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/delicioushwan/magickodung/configs"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
-
-	"github.com/delicioushwan/magickodung/configs"
 )
 
 type JWTClaims struct {
@@ -17,7 +16,7 @@ type JWTClaims struct {
 
 var config = configs.GetConfig()
 
-const expires time.Duration = 240 * time.Hour
+const expires time.Duration = 24 * 30 * time.Hour
 
 func MakeJWTToken(userID uint) (string, error) {
 	c := &JWTClaims{

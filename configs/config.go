@@ -42,7 +42,7 @@ func initConfig() *AppConfig {
 	defaultConfig.DB_Port = getEnvInt("DB_PORT",9876)
 	defaultConfig.Username = getEnv("USERNAME", "root")
 	defaultConfig.Password = getEnv("PASSWORD", "password")
-	defaultConfig.Secret = getEnv("SECRET", "secret")
+	defaultConfig.Secret = getEnv("SECRET", "thisis32bitlongpassphraseimusing")
 	defaultConfig.TEST_DB_Port = getEnvInt("TEST_DB_PORT",9987)
 
 	fmt.Println(defaultConfig)
