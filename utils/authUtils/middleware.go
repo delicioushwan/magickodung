@@ -28,7 +28,6 @@ func NewAnonymousTokenMiddleware(secret string) echo.MiddlewareFunc {
 				tokenValue := strconv.FormatInt(time.Now().UnixMilli(), 10)
 				encryptoValue := EncryptAES([]byte(secret), tokenValue)
 
-				fmt.Println(encryptoValue)
 				cookie := new(http.Cookie)
 				cookie.Name = "1P_AS"
 				cookie.Value = encryptoValue
@@ -36,10 +35,10 @@ func NewAnonymousTokenMiddleware(secret string) echo.MiddlewareFunc {
 				cookie.Path= "/"
 				cookie.Expires = time.Now().Add(24 * 365 * time.Hour)
 				c.SetCookie(cookie)
+				c.Set("1P_AS", tokenValue)
 			} else {
 				c.Set("1P_AS",DecryptAES([]byte(secret), val.Value))
 			}
-
 			return next(c)
 		}
 	}

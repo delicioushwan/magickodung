@@ -10,7 +10,7 @@ import (
 )
 
 type JWTClaims struct {
-	UserID uint
+	UserID uint64
 	jwt.StandardClaims
 }
 
@@ -18,7 +18,7 @@ var config = configs.GetConfig()
 
 const expires time.Duration = 24 * 30 * time.Hour
 
-func MakeJWTToken(userID uint) (string, error) {
+func MakeJWTToken(userID uint64) (string, error) {
 	c := &JWTClaims{
 		UserID: userID,
 		StandardClaims: jwt.StandardClaims{
@@ -29,13 +29,22 @@ func MakeJWTToken(userID uint) (string, error) {
 	return token.SignedString([]byte(config.Secret))
 }
 
-// CurrentUser returns current user id which stored at echo.Context if exist, otherwise returns 0.
-func CurrentUser(ctx echo.Context) uint {
+func CurrentUser(ctx echo.Context) uint64 {
 	token, ok := ctx.Get("user").(*jwt.Token)
 	if !ok {
 		return 0
 	}
 	return token.Claims.(*JWTClaims).UserID
+}
+
+type visitor struct {
+	visitorId uint64
+}
+func CurrentVisitor(ctx echo.Context) uint64 {
+	visitor := ctx.Get("1P_AS").(visitor)
+
+	return visitor.visitorId
+
 }
 
 func SetAuthCookie(c echo.Context, token string) {
