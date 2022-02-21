@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/delicioushwan/magickodung/entities"
+	"github.com/delicioushwan/magickodung/repository/option"
 	"github.com/delicioushwan/magickodung/repository/question"
 	"github.com/delicioushwan/magickodung/utils/authUtils"
 	"github.com/delicioushwan/magickodung/utils/httpUtils"
@@ -12,7 +13,8 @@ import (
 )
 
 type QuestionsController struct {
-	Repo question.QuestionInterface
+	QRepo question.QuestionInterface
+	ORepo option.OptionInterface
 }
 
 func NewQuestionsControllers(
@@ -43,12 +45,24 @@ func (ctrl QuestionsController) CreateQuestion() echo.HandlerFunc {
 			State: "created",
 		}
 
-		_, err := ctrl.Repo.Create(newQuestion)
+		question, err := ctrl.QRepo.Create(newQuestion)
 		if err != nil {
 			return httpUtils.NewInternalServerError(err)
 		}
 
-		_, err := ctrl.Repo.
+		var newOptions []entities.Option
+		for _, opt := range req.Options {
+			newOptions = append(newOptions, entities.Option {
+				QuetionId: question.QuestionId,
+				Option: opt,
+				State: "created",
+			})
+		}
+
+		err = ctrl.ORepo.Create(newOptions)
+		if err != nil {
+			return httpUtils.NewInternalServerError(err)
+		}
 	
 		return c.JSON(http.StatusOK, "ok")
 	}

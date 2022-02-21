@@ -14,7 +14,7 @@ func NewOptionsRepo(db *gorm.DB) *OptionRepository {
 	return &OptionRepository{db: db}
 }
 
-func (op *OptionRepository) Create(newOption entities.Option) (entities.Option, error) {
+func (op *OptionRepository) Create(newOption []entities.Option) (error) {
 	err := op.db.Create(&newOption).Error
-	return newOption, err
+	return err
 }

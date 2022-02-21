@@ -9,8 +9,11 @@ import (
 	"time"
 
 	"github.com/delicioushwan/magickodung/configs"
+	"github.com/delicioushwan/magickodung/delivery/controllers/question"
 	"github.com/delicioushwan/magickodung/delivery/controllers/user"
 	"github.com/delicioushwan/magickodung/delivery/routes"
+	optionRepo "github.com/delicioushwan/magickodung/repository/option"
+	questionRepo "github.com/delicioushwan/magickodung/repository/question"
 	userRepo "github.com/delicioushwan/magickodung/repository/user"
 	"github.com/delicioushwan/magickodung/utils"
 	"github.com/delicioushwan/magickodung/utils/authUtils"
@@ -43,9 +46,14 @@ func main() {
 	e.Validator = httpUtils.NewValidator()
 
 	userRepo := userRepo.NewUsersRepo(db)
-	userCtrl := user.NewUsersControllers(userRepo)
+	questionRepo := questionRepo.NewQuestionsRepo(db)
+	optionRepo := optionRepo.NewOptionsRepo(db)
 
-	routes.RegisterPath(e,  userCtrl)
+	userCtrl := user.NewUsersControllers(userRepo)
+	questionCtrl := question.NewQuestionsControllers(questionRepo,optionRepo)
+
+
+	routes.RegisterPath(e,  userCtrl, questionCtrl)
 
 	go func() {
 		address := fmt.Sprintf(":%d", config.Port)	

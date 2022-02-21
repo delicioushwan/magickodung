@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/delicioushwan/magickodung/configs"
+	"github.com/delicioushwan/magickodung/delivery/controllers/question"
 	"github.com/delicioushwan/magickodung/delivery/controllers/user"
 	"github.com/delicioushwan/magickodung/utils/authUtils"
 
@@ -20,6 +21,7 @@ func Session (c echo.Context) error {
 func RegisterPath(
 	e *echo.Echo,
 	uctrl *user.UsersController,
+	qctrl *question.QuestionsController,
 ) {
 
 	e.GET("/session", Session)
@@ -30,5 +32,5 @@ func RegisterPath(
 
 	questionGroup := e.Group("/questions")
 	questionGroup.Use(authUtils.NewJWTMiddleware(config.Secret))
-	// questionGroup.POST("/")
+	questionGroup.POST("/", qctrl.CreateQuestion())
 }
