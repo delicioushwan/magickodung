@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/delicioushwan/magickodung/configs"
@@ -57,3 +59,21 @@ func InitTtestDB(config *configs.AppConfig) *gorm.DB {
 	return db
 }
 
+func RunInTx(ctx context.Context, db *gorm.DB, opts *sql.TxOptions, f func(txDb *gorm.DB) error) error {
+	tx := db.WithContext(ctx).Begin(opts)
+	if tx.Error != nil {
+		return fmt.Errorf("start tx: %v", tx.Error)
+	}
+
+	if err := f(tx); err != nil {
+		if err1 := tx.Rollback().Error; err1 != nil {
+			return fmt.Errorf("rollback tx: %v (original error: %v)", err1, err)
+		}
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("commit tx: %v", err)
+	}
+	return nil
+}
