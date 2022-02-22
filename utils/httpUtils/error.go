@@ -53,6 +53,7 @@ func NewBadRequest(err interface{}) error {
 
 
 func NewError(statusCode int, msg string) error {
+	fmt.Println(msg)
 	return echo.NewHTTPError(statusCode, &Error{
 		Errors: map[string]interface{}{
 			"body": msg,

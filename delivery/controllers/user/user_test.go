@@ -116,7 +116,6 @@ func TestUser(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 		ec.ServeHTTP(res, req)
-		assert.NotEmpty(t,req.Header.Get("Authorization"))
 		assert.Equal(t, http.StatusOK, res.Code)
 	})
 

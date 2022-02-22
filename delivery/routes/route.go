@@ -6,7 +6,6 @@ import (
 	"github.com/delicioushwan/magickodung/configs"
 	"github.com/delicioushwan/magickodung/delivery/controllers/question"
 	"github.com/delicioushwan/magickodung/delivery/controllers/user"
-	"github.com/delicioushwan/magickodung/utils/authUtils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -31,6 +30,5 @@ func RegisterPath(
 	usersGroup.POST("/login", uctrl.Login())
 
 	questionGroup := e.Group("/questions")
-	questionGroup.Use(authUtils.NewJWTMiddleware(config.Secret))
 	questionGroup.POST("/", qctrl.CreateQuestion())
 }

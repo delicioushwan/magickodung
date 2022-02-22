@@ -12,7 +12,7 @@ import (
 
 func TestUsersRepo(t *testing.T) {
 	config := configs.GetConfig()
-	db := utils.InitDB(config)
+	db := utils.InitTtestDB(config)
 
 	db.Migrator().DropTable(&entities.User{})
 	db.AutoMigrate(&entities.User{})
@@ -23,7 +23,6 @@ func TestUsersRepo(t *testing.T) {
 	mockInserUser.Pwd = "TestPassword1"
 
 	t.Run("Insert User into Database", func(t *testing.T) {
-
 		res, err := userRepo.Create(mockInserUser)
 		assert.Nil(t, err)
 		assert.Equal(t, mockInserUser.Account, res.Account)

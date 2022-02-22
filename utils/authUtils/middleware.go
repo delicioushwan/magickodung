@@ -22,7 +22,7 @@ func NewJWTMiddleware(secret string) echo.MiddlewareFunc {
 func NewAnonymousTokenMiddleware(secret string) echo.MiddlewareFunc {
 	return func (next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			val, err := c.Cookie("1P_AS")
+			_, err := c.Cookie("1P_AS")
 			if err != nil {
 				fmt.Println("anonymousToken Middleware Error : ",err)
 				tokenValue := strconv.FormatInt(time.Now().UnixMilli(), 10)
@@ -35,10 +35,7 @@ func NewAnonymousTokenMiddleware(secret string) echo.MiddlewareFunc {
 				cookie.Path= "/"
 				cookie.Expires = time.Now().Add(24 * 365 * time.Hour)
 				c.SetCookie(cookie)
-				c.Set("1P_AS", tokenValue)
-			} else {
-				c.Set("1P_AS",DecryptAES([]byte(secret), val.Value))
-			}
+			} 
 			return next(c)
 		}
 	}

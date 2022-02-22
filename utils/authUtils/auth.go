@@ -1,10 +1,13 @@
 package authUtils
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/delicioushwan/magickodung/configs"
+	"github.com/delicioushwan/magickodung/utils/httpUtils"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
@@ -13,6 +16,10 @@ type JWTClaims struct {
 	UserID uint64
 	jwt.StandardClaims
 }
+
+const (
+	AuthScheme = "Bearer"
+)
 
 var config = configs.GetConfig()
 
@@ -37,14 +44,14 @@ func CurrentUser(ctx echo.Context) uint64 {
 	return token.Claims.(*JWTClaims).UserID
 }
 
-type visitor struct {
-	visitorId uint64
-}
-func CurrentVisitor(ctx echo.Context) uint64 {
-	visitor := ctx.Get("1P_AS").(visitor)
 
-	return visitor.visitorId
-
+func CurrentVisitor(ctx echo.Context) (uint64, error) {
+	cookie, err := ctx.Cookie("1P_AS")
+	if err != nil {
+		return 0, httpUtils.NewInternalServerError(err)
+	}
+	visitorToken, _ := strconv.ParseUint(DecryptAES([]byte(config.Secret), cookie.Value), 10, 64)
+	return visitorToken, nil
 }
 
 func SetAuthCookie(c echo.Context, token string) {
@@ -55,4 +62,10 @@ func SetAuthCookie(c echo.Context, token string) {
 	cookie.Path= "/"
 	cookie.Expires = time.Now().Add(24 * 30 * time.Hour)
 	c.SetCookie(cookie)
+}
+
+
+func SetAuthToken(r *http.Request, token string) {
+	fmt.Println(fmt.Sprintf("%s %s", AuthScheme, token))
+	r.Header.Set("Authorization", fmt.Sprintf("%s %s", AuthScheme, token))
 }
