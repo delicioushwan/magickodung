@@ -1,7 +1,6 @@
 package question
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/delicioushwan/magickodung/entities"
@@ -31,11 +30,10 @@ func NewQuestionsControllers(
 func (ctrl QuestionsController) CreateQuestion() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		req := CreateQuestionRequestFormat{}
-		fmt.Println("#@%#$%#ㄲㄸㅆㄸㄲㅆㄸㄲㅆㄸㄲㅆ", c.Request().Body)
+
 		if err := httpUtils.BindAndValidate(c, &req); err != nil {
 			return httpUtils.NewBadRequest(err)
 		}
-		fmt.Println("9843489759384753489753897598", c.Request().Body)
 
 		var userId uint64
 		if userId = authUtils.CurrentUser(c); userId == 0 {
@@ -63,7 +61,8 @@ func (ctrl QuestionsController) CreateQuestion() echo.HandlerFunc {
 			})
 		}
 
-		err = ctrl.ORepo.Create(newOptions)
+		_, err = ctrl.ORepo.Create(newOptions)
+
 		if err != nil {
 			return httpUtils.NewInternalServerError(err)
 		}

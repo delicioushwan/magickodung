@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/delicioushwan/magickodung/configs"
+	"github.com/delicioushwan/magickodung/delivery/controllers/category"
 	"github.com/delicioushwan/magickodung/delivery/controllers/question"
 	"github.com/delicioushwan/magickodung/delivery/controllers/user"
 
@@ -24,6 +25,7 @@ func RegisterPath(
 ) {
 
 	e.GET("/session", Session)
+	e.GET("/category", category.GetCategory())
 
 	usersGroup := e.Group("/users")
 	usersGroup.POST("/signup", uctrl.Signup())

@@ -24,7 +24,8 @@ func TestOptionRepo(t *testing.T) {
 	)
 
 	t.Run("Insert Options into Database", func(t *testing.T){
-		err := optionRepo.Create(mockOptions)
+		rowsAffected, err := optionRepo.Create(mockOptions)
 		assert.Nil(t, err)
+		assert.Equal(t, 2, int(rowsAffected))
 	})
 }

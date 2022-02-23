@@ -40,7 +40,7 @@ func TestQuestion(t *testing.T) {
 
 	questionRepo := questionRepo.NewQuestionsRepo(db)
 	optionRepo := optionRepo.NewOptionsRepo(db)
-	questionCtrl := NewQuestionsControllers(questionRepo,optionRepo)
+	questionCtrl := NewQuestionsControllers(questionRepo, optionRepo)
 
 	questionGroup := ec.Group("/questions")
 	questionGroup.POST("/", questionCtrl.CreateQuestion())
