@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div>
       <div>
-        <Link href="/quesions/add">질문하기</Link>
+        <Link href="/questions/add">질문하기</Link>
       </div>
       <div>
         <Link href="/questions">골라주기</Link>
