@@ -30,7 +30,7 @@ func NewQuestionsControllers(
 func (ctrl QuestionsController) CreateQuestion() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		req := CreateQuestionRequestFormat{}
-
+		
 		if err := httpUtils.BindAndValidate(c, &req); err != nil {
 			return httpUtils.NewBadRequest(err)
 		}
