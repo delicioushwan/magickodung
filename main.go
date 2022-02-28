@@ -9,9 +9,11 @@ import (
 	"time"
 
 	"github.com/delicioushwan/magickodung/configs"
+	"github.com/delicioushwan/magickodung/delivery/controllers/answer"
 	"github.com/delicioushwan/magickodung/delivery/controllers/question"
 	"github.com/delicioushwan/magickodung/delivery/controllers/user"
 	"github.com/delicioushwan/magickodung/delivery/routes"
+	answerRepo "github.com/delicioushwan/magickodung/repository/answer"
 	optionRepo "github.com/delicioushwan/magickodung/repository/option"
 	questionRepo "github.com/delicioushwan/magickodung/repository/question"
 	userRepo "github.com/delicioushwan/magickodung/repository/user"
@@ -48,12 +50,14 @@ func main() {
 	userRepo := userRepo.NewUsersRepo(db)
 	questionRepo := questionRepo.NewQuestionsRepo(db)
 	optionRepo := optionRepo.NewOptionsRepo(db)
+	answerRepo := answerRepo.NewAnswersRepo(db)
 
 	userCtrl := user.NewUsersControllers(userRepo)
-	questionCtrl := question.NewQuestionsControllers(questionRepo,optionRepo)
+	questionCtrl := question.NewQuestionsControllers(questionRepo, optionRepo)
+	answerCtrl := answer.NewAnswersControllers(answerRepo)
 
 
-	routes.RegisterPath(e,  userCtrl, questionCtrl)
+	routes.RegisterPath(e,  userCtrl, questionCtrl, answerCtrl)
 
 	go func() {
 		address := fmt.Sprintf(":%d", config.Port)	

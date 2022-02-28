@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/delicioushwan/magickodung/configs"
+	"github.com/delicioushwan/magickodung/delivery/controllers/answer"
 	"github.com/delicioushwan/magickodung/delivery/controllers/category"
 	"github.com/delicioushwan/magickodung/delivery/controllers/question"
 	"github.com/delicioushwan/magickodung/delivery/controllers/user"
@@ -22,6 +23,7 @@ func RegisterPath(
 	e *echo.Echo,
 	uctrl *user.UsersController,
 	qctrl *question.QuestionsController,
+	actrl *answer.AnswersController,
 ) {
 
 	e.GET("/session", Session)
@@ -33,4 +35,7 @@ func RegisterPath(
 
 	questionGroup := e.Group("/questions")
 	questionGroup.POST("/", qctrl.CreateQuestion())
+
+	answerGroup := e.Group("/answers")
+	answerGroup.POST("/", actrl.CreateAnswer())
 }

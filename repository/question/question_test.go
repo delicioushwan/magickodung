@@ -9,6 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func create(x uint64) *uint64 {
+	return &x
+}
+
 func TestQuestionRepo(t *testing.T) {
 	config := configs.GetConfig()
 	db := utils.InitTtestDB(config)
@@ -16,10 +20,12 @@ func TestQuestionRepo(t *testing.T) {
 	db.Migrator().DropTable(&entities.Question{})
 	db.AutoMigrate(&entities.Question{})
 
+
+
 	questionRepo := NewQuestionsRepo(db)
 	var mockQuestion entities.Question
 	mockQuestion.Title = "test"
-	mockQuestion.CategoryId = 1
+	mockQuestion.CategoryId = create(1)
 
 	t.Run("Insert Question into Database", func(t *testing.T){
 		res, err := questionRepo.Create(mockQuestion)
