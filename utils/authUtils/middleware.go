@@ -1,11 +1,13 @@
 package authUtils
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -13,9 +15,28 @@ import (
 func NewJWTMiddleware(secret string) echo.MiddlewareFunc {
 	return middleware.JWTWithConfig(
 		middleware.JWTConfig{
+			TokenLookup: "cookie:access_token",
 			Claims:      &JWTClaims{},
 			SigningKey:  []byte(secret),
-		},
+			ParseTokenFunc: func(auth string, c echo.Context) (interface{}, error) {
+				keyFunc := func(t *jwt.Token) (interface{}, error) {
+					fmt.Println("23423423RWEREWRWER@#$@#$WERWERWER",t.Method.Alg())
+					if t.Method.Alg() != "HS256" {
+						return nil, fmt.Errorf("unexpected jwt signing method=%v", t.Header["alg"])
+					}
+					return []byte(secret), nil
+				}
+		
+				fmt.Println(auth,"authauthauthauthauthauthauthauthauthauth")
+				token, err := jwt.Parse(auth, keyFunc)
+				if err != nil {
+					return nil, err
+				}
+				if !token.Valid {
+					return nil, errors.New("invalid token")
+				}
+				return token, nil
+			},		},
 	)
 }
 

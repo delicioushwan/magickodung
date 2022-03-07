@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 func InitDB(config *configs.AppConfig) *gorm.DB {
@@ -22,7 +23,7 @@ func InitDB(config *configs.AppConfig) *gorm.DB {
 	)
 	// "root:@tcp(127.0.0.1:3306)/be5db?charset=utf8&parseTime=True&loc=Local"
 
-	db, err := gorm.Open(mysql.Open(connectionString), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(connectionString), &gorm.Config{Logger : logger.Default.LogMode(logger.Info)})
 
 	if err != nil {
 		log.Info("failed to connect database :", err)
@@ -34,7 +35,7 @@ func InitDB(config *configs.AppConfig) *gorm.DB {
 }
 
 func InitialMigration(db *gorm.DB) {
-	db.AutoMigrate(entities.User{}, entities.Question{}, entities.Option{})
+	db.AutoMigrate(entities.User{}, entities.Question{}, entities.Option{}, entities.Answer{})
 }
 
 

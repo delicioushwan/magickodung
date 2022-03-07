@@ -19,8 +19,8 @@ func TestOptionRepo(t *testing.T) {
 	optionRepo := NewOptionsRepo(db)
 	var mockOptions []entities.Option
 	mockOptions = append(mockOptions,
-		entities.Option{QuetionId: 1, Option: "test1"},
-		entities.Option{QuetionId: 1, Option: "test2"},
+		entities.Option{QuestionId: 1, Option: "test1"},
+		entities.Option{QuestionId: 1, Option: "test2"},
 	)
 
 	t.Run("Insert Options into Database", func(t *testing.T){

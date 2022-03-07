@@ -8,3 +8,11 @@ type Question struct {
 	State string `gorm:"notNull"`
 	Common
 }
+
+type GetCommonQuestionsResponse struct {
+	QuestionId  uint64 
+	Title		string
+	OptionId  uint64
+	Option		string
+	Quantity uint64
+}

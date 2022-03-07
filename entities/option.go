@@ -2,9 +2,9 @@ package entities
 
 type Option struct {
 	OptionId  uint64 `gorm:"primaryKey; autoIncrement"`
-	QuetionId		uint64 `gorm:"notNull;"`
+	QuestionId		uint64 `gorm:"notNull;"`
 	Option		string `gorm:"notNull"`
-	Quatity uint64
+	Quantity uint64 `gorm:"notNull"`
 	State string `gorm:"notNull"`
 	Common
 }

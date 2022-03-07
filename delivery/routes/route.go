@@ -8,6 +8,7 @@ import (
 	"github.com/delicioushwan/magickodung/delivery/controllers/category"
 	"github.com/delicioushwan/magickodung/delivery/controllers/question"
 	"github.com/delicioushwan/magickodung/delivery/controllers/user"
+	"github.com/delicioushwan/magickodung/utils/authUtils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -26,6 +27,8 @@ func RegisterPath(
 	actrl *answer.AnswersController,
 ) {
 
+	jwtMiddleware := authUtils.NewJWTMiddleware(config.Secret)
+
 	e.GET("/session", Session)
 	e.GET("/category", category.GetCategory())
 
@@ -34,7 +37,10 @@ func RegisterPath(
 	usersGroup.POST("/login", uctrl.Login())
 
 	questionGroup := e.Group("/questions")
+	questionGroup.GET("/", qctrl.FindRandomeQuestions())
+	questionGroup.Use(jwtMiddleware)
 	questionGroup.POST("/", qctrl.CreateQuestion())
+	questionGroup.GET("/user", qctrl.FindQuestionsByUserId())
 
 	answerGroup := e.Group("/answers")
 	answerGroup.POST("/", actrl.CreateAnswer())

@@ -6,4 +6,3 @@ type CreateQuestionRequestFormat struct {
 	Options []string `json:"options" form:"options" validate:"required"`
 }
 
-

@@ -38,21 +38,43 @@ func MakeJWTToken(userID uint64) (string, error) {
 
 func CurrentUser(ctx echo.Context) uint64 {
 	token, ok := ctx.Get("user").(*jwt.Token)
+	fmt.Println(ok,"OKOKOKOKOKOKOKOKO")
 	if !ok {
 		return 0
 	}
 	return token.Claims.(*JWTClaims).UserID
 }
 
-
 func CurrentVisitor(ctx echo.Context) (uint64, error) {
 	cookie, err := ctx.Cookie("1P_AS")
 	if err != nil {
 		return 0, httpUtils.NewInternalServerError(err)
 	}
-	visitorToken, _ := strconv.ParseUint(DecryptAES([]byte(config.Secret), cookie.Value), 10, 64)
+	visitorToken, err := strconv.ParseUint(DecryptAES([]byte(config.Secret), cookie.Value), 10, 64)
+	if err != nil {
+		return 0, httpUtils.NewInternalServerError(err)
+	}
 	return visitorToken, nil
 }
+
+func CurrentUserId(ctx echo.Context) (uint64) {
+	var userId uint64
+	if userId = CurrentUser(ctx); userId == 0 {
+		fmt.Println("token??", userId)
+		userId, _ = CurrentVisitor(ctx)
+	}
+	fmt.Println("what ??????", userId)
+	return userId
+}
+
+func CurrentAuthUserId(ctx echo.Context) (uint64, error) {
+	var userId uint64
+	if userId = CurrentUser(ctx); userId == 0 {
+		return 0, httpUtils.NewUnauthorized("회원만 이용가능")
+	}
+
+	return userId, nil
+} 
 
 func SetAuthCookie(c echo.Context, token string) {
 	cookie := new(http.Cookie)
@@ -62,10 +84,4 @@ func SetAuthCookie(c echo.Context, token string) {
 	cookie.Path= "/"
 	cookie.Expires = time.Now().Add(24 * 30 * time.Hour)
 	c.SetCookie(cookie)
-}
-
-
-func SetAuthToken(r *http.Request, token string) {
-	fmt.Println(fmt.Sprintf("%s %s", AuthScheme, token))
-	r.Header.Set("Authorization", fmt.Sprintf("%s %s", AuthScheme, token))
 }

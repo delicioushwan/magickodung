@@ -1,17 +1,12 @@
 package question
 
-import "github.com/delicioushwan/magickodung/entities"
-
-type UserResponse struct {
-	User struct {
-		Account    string `json:"account"`
-		Token    string `json:"token"`
-	} `json:"user"`
+type Option struct {
+	OptionId  uint64 `json:"optionid"`
+	Option		string `json:"option"`
+	Quantity uint64 `json:"quantity"`
 }
-
-func ToUserResponse(u *entities.User, token string) *UserResponse {
-	user := new(UserResponse)
-	user.User.Account = u.Account
-	user.User.Token = token
-	return user
+type CommonQuestionsResponse struct {
+	QuestionId  uint64  `json:"questionId"`
+	Title		string		`json:"title"`
+	Options [] Option `json:"options"`
 }

@@ -1,4 +1,4 @@
-import { useState, useffect, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Axios from "../utils/axios";
 
@@ -21,24 +21,11 @@ export default function Login() {
         <input type="password" {...register("pwd", { required: true })} />
         <input type="submit" disabled={isLoading} />
       </form>
-      <button onClick={onPost}>post</button>
-      <button onClick={onGet}>get</button>
     </div>
   );
 }
 
 async function onSubmitSignup({ account, pwd }, setLoading) {
-  const response = await Axios.post("/users/signup", { account, pwd });
-  console.log(response);
+  await Axios.post("/users/signup", { account, pwd });
   setLoading(false);
-}
-
-async function onPost({ account, pwd }, setLoading) {
-  const response = await Axios.post("/test");
-  console.log(response);
-}
-
-async function onGet({ account, pwd }, setLoading) {
-  const response = await Axios.get("/test");
-  console.log(response);
 }
