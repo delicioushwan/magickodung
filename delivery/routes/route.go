@@ -18,7 +18,7 @@ var config = configs.GetConfig()
 
 func Session (c echo.Context) error {
 		return c.JSON(http.StatusOK, "nice")
-	}
+}
 
 func RegisterPath(
 	e *echo.Echo,
@@ -28,6 +28,7 @@ func RegisterPath(
 ) {
 
 	jwtMiddleware := authUtils.NewJWTMiddleware(config.Secret)
+	// authorizeMiddleware := authUtils.NewAuthorizeMiddleware(config.Secret)
 
 	e.GET("/session", Session)
 	e.GET("/category", category.GetCategory())
@@ -38,10 +39,12 @@ func RegisterPath(
 
 	questionGroup := e.Group("/questions")
 	questionGroup.GET("/", qctrl.FindRandomeQuestions())
-	questionGroup.Use(jwtMiddleware)
 	questionGroup.POST("/", qctrl.CreateQuestion())
-	questionGroup.GET("/user", qctrl.FindQuestionsByUserId())
 
 	answerGroup := e.Group("/answers")
 	answerGroup.POST("/", actrl.CreateAnswer())
+
+	userGroup := e.Group("/user")
+	userGroup.Use(jwtMiddleware)
+	userGroup.GET("/questions",qctrl.FindQuestionsByUserId())
 }

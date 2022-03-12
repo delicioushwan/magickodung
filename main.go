@@ -43,8 +43,8 @@ func main() {
 	}))
 	e.Use(middleware.RemoveTrailingSlash())
 
-	AnonymousTokenMiddleware := authUtils.NewAnonymousTokenMiddleware(config.Secret)
-	e.Use(AnonymousTokenMiddleware)
+	tokenMiddleware := authUtils.NewTokenMiddleware(config.Secret)
+	e.Use(tokenMiddleware)
 	e.Validator = httpUtils.NewValidator()
 
 	userRepo := userRepo.NewUsersRepo(db)

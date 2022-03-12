@@ -1,7 +1,6 @@
 package authUtils
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,10 +15,6 @@ type JWTClaims struct {
 	UserID uint64
 	jwt.StandardClaims
 }
-
-const (
-	AuthScheme = "Bearer"
-)
 
 var config = configs.GetConfig()
 
@@ -37,12 +32,12 @@ func MakeJWTToken(userID uint64) (string, error) {
 }
 
 func CurrentUser(ctx echo.Context) uint64 {
-	token, ok := ctx.Get("user").(*jwt.Token)
-	fmt.Println(ok,"OKOKOKOKOKOKOKOKO")
-	if !ok {
+	userId := ctx.Get("user")
+	if userId == nil {
 		return 0
 	}
-	return token.Claims.(*JWTClaims).UserID
+
+	return userId.(uint64)
 }
 
 func CurrentVisitor(ctx echo.Context) (uint64, error) {
@@ -60,10 +55,9 @@ func CurrentVisitor(ctx echo.Context) (uint64, error) {
 func CurrentUserId(ctx echo.Context) (uint64) {
 	var userId uint64
 	if userId = CurrentUser(ctx); userId == 0 {
-		fmt.Println("token??", userId)
 		userId, _ = CurrentVisitor(ctx)
 	}
-	fmt.Println("what ??????", userId)
+
 	return userId
 }
 
@@ -82,6 +76,6 @@ func SetAuthCookie(c echo.Context, token string) {
 	cookie.Value = token
 	cookie.HttpOnly = true
 	cookie.Path= "/"
-	cookie.Expires = time.Now().Add(24 * 30 * time.Hour)
+	cookie.Expires = time.Now().Add(expires)
 	c.SetCookie(cookie)
 }

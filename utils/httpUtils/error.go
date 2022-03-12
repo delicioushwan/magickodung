@@ -51,6 +51,20 @@ func NewBadRequest(err interface{}) error {
 	return NewError(http.StatusBadRequest, msg)
 }
 
+func NewForbiden(err interface{}) error {
+	msg := "invalid or expired jwt"
+	if err != nil {
+		switch v := err.(type) {
+		case string:
+			msg = v
+		case error:
+			msg = v.Error()
+		}
+	}
+
+	return NewError(http.StatusForbidden, msg)
+}
+
 
 func NewError(statusCode int, msg string) error {
 	fmt.Println(msg)
