@@ -24,14 +24,14 @@ func (qt *QuestionRepository) GetRandom(userId uint64, categoryId *uint64) ([]en
 
 	subQuery := qt.db.
 	Table(`questions SQ`).
-	Select(`question_id`).
+	Select(`SQ.question_id`).
 	Joins(`LEFT JOIN answers A ON A.question_id = SQ.question_id AND A.user_id = ?`, userId).
 	Where(`A.answer_id IS NULL`).
-	Where(`Q.user_id != ?`, userId).
+	Where(`SQ.user_id != ?`, userId).
 	Order(`RAND()`).
 	Limit(3)
-
-	if categoryId == nil {
+	
+	if categoryId != nil {
 		subQuery.Where(`category_id = ?`, categoryId)
 	}
 

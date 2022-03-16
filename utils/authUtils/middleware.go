@@ -68,7 +68,6 @@ func parseToken(auth string) (uint64, error) {
 		return []byte(config.Secret), nil
 	})
 	if Perr != nil {
-		fmt.Println("perr", Perr)
 		return 0, httpUtils.NewForbiden(Perr)
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {

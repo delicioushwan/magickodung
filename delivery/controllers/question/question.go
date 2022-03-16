@@ -74,12 +74,14 @@ func (ctrl QuestionsController) FindRandomeQuestions() echo.HandlerFunc {
 		var categoryId *uint64
 
 		id, err := strconv.ParseUint(c.Param("category"), 10, 64)
-		*categoryId = id
 		if err != nil {
 			categoryId = nil
+		} else {
+			categoryId = &id
 		}
-		userId := authUtils.CurrentUserId(c)
 		
+		userId := authUtils.CurrentUserId(c)
+
 		res, err := ctrl.QRepo.GetRandom(userId, categoryId)
 		if err != nil {
 			return httpUtils.NewInternalServerError(err)
