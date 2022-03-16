@@ -7,9 +7,67 @@ import { useForm } from "react-hook-form";
 
 import { Input, Button } from "@mui/material";
 
-export default function Questions({ Component, pageProps }) {
+export default function Questions() {
   const [questions, setQuestions] = useState([]);
   const [question, setQuestion] = useState(null);
+  const {
+    register,
+    watch,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm();
+
+  const { answer } = watch();
+  const { questionId, options, title } = question || {};
+
+  const onSubmitAnswer = async () => {
+    console.log({ answer });
+    if (window.confirm("이것을 고르시겠습니까?")) {
+      try {
+        await postAnswer({ answer, questionId });
+        window.alert("등록 성공~");
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+  useEffect(async () => {
+    const res = await getQuestions();
+    setQuestions(res);
+  }, []);
+
+  useEffect(() => {
+    setQuestion(questions[0]);
+  }, [questions]);
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit(onSubmitAnswer)}>
+        <div>질문 제목 : {title}</div>
+        {options?.map(({ optionId, option, quantity }) => (
+          <div key={optionId}>
+            <Button
+              type="button"
+              variant={answer === option && "contained"}
+              onClick={() => setValue("answer", option)}
+              color={answer === option ? "secondary" : "primary"}
+              {...register("answer", { required: true })}
+            >
+              {option}
+            </Button>
+          </div>
+        ))}
+        <div>{errors?.answer?.type && "대답을 골라라~"}</div>
+        <Button type="submit">답변하기</Button>
+      </form>
+
+      <Comments />
+    </div>
+  );
+}
+
+function Comments() {
   const {
     register,
     watch,
@@ -25,25 +83,9 @@ export default function Questions({ Component, pageProps }) {
     }
   };
 
-  const { questionId, options, title } = question || {};
-  useEffect(async () => {
-    const res = await getQuestions();
-    setQuestions(res);
-  }, []);
-
-  useEffect(() => {
-    setQuestion(questions[0]);
-  }, [questions]);
-
+  console.log(errors);
   return (
     <div>
-      <div key={questionId}>
-        <div>{title}</div>
-        {options?.map(({ optionId, option, quantity }) => (
-          <div key={optionId}>{option}</div>
-        ))}
-      </div>
-
       <div>댓글</div>
       <form onSubmit={handleSubmit(onSubmitComment)}>
         <Input {...register("comment", { required: true })} />
@@ -56,5 +98,10 @@ export default function Questions({ Component, pageProps }) {
 
 async function getQuestions() {
   const res = await Axios.get("/questions/");
+  return res.data;
+}
+
+async function postAnswer({ questionId, answer }) {
+  const res = await Axios.post("/answers/", { questionId, answer });
   return res.data;
 }
