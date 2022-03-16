@@ -14,7 +14,7 @@ import (
 func NewJWTMiddleware(secret string) echo.MiddlewareFunc {
 	return func (next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			accessTokenCookie, Uerr := c.Cookie("access_token")
+			accessTokenCookie, Uerr := c.Cookie("mg_at")
 			if Uerr != nil {
 				return httpUtils.NewUnauthorized("로그인 필요!")
 			}
@@ -46,10 +46,17 @@ func NewTokenMiddleware(secret string) echo.MiddlewareFunc {
 				c.SetCookie(cookie)
 			}
 	
-			accessTokenCookie, Uerr := c.Cookie("access_token")
+			accessTokenCookie, Uerr := c.Cookie("mg_at")
 			if Uerr == nil {
 				userId, parseErr := parseToken(accessTokenCookie.Value)
 				if parseErr != nil {
+					cookie := new(http.Cookie)
+					cookie.Name = "mg_at"
+					cookie.Value =  ""
+					cookie.HttpOnly = true
+					cookie.Path= "/"
+					cookie.MaxAge =   0
+					c.SetCookie(cookie)
 					return httpUtils.NewForbiden(parseErr)
 				}
 				c.Set("user", userId)

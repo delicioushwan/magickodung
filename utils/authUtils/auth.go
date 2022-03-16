@@ -72,7 +72,7 @@ func CurrentAuthUserId(ctx echo.Context) (uint64, error) {
 
 func SetAuthCookie(c echo.Context, token string) {
 	cookie := new(http.Cookie)
-	cookie.Name = "access_token"
+	cookie.Name = "mg_at"
 	cookie.Value = token
 	cookie.HttpOnly = true
 	cookie.Path= "/"
