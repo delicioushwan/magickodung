@@ -1,0 +1,29 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "jest": true,
+    "node": true
+  },
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
+    "prettier/@typescript-eslint"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "no-unused-vars": "error",
+    "no-undef": "error",
+    "no-tabs": "error",
+    "no-trailing-spaces": "error",
+    "no-console": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-var-requires": "off"
+  },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module" // Allows for the use of imports
+  }
+}

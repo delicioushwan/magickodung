@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import Axios from "../../utils/axios";
+import { useEffect, useState } from 'react';
+import Axios from '../../utils/axios';
 
 export default function Login() {
   const [questions, setQuestions] = useState([]);
@@ -19,6 +19,6 @@ export default function Login() {
 }
 
 async function getQuestions() {
-  const res = await Axios.get("/questions/user", { limit: 10, offset: 0 });
+  const res = await Axios.get('/questions/user', { limit: 10, offset: 0 });
   return res.data;
 }

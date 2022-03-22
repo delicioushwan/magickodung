@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
-import { ButtonGroup, Button, Input } from "@mui/material";
+import { useEffect, useState } from 'react';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { ButtonGroup, Button, Input } from '@mui/material';
 
-import Axios from "../../utils/axios";
+import Axios from '../../utils/axios';
 
-const initialValue = { category: null, option: [], title: "" };
+const initialValue = { category: null, option: [], title: '' };
 
 export default function AddQuestions() {
   const [categories, setCategory] = useState([]);
@@ -20,11 +20,11 @@ export default function AddQuestions() {
   const { category } = watch();
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "option",
+    name: 'option',
   });
   console.log(errors);
   useEffect(async () => {
-    const res = await Axios.get("/category");
+    const res = await Axios.get('/category');
     setCategory(res.data);
   }, []);
 
@@ -32,13 +32,13 @@ export default function AddQuestions() {
     const { option, title, category } = data;
     const options = option.map(({ value }) => value);
     if (options.length < 2) {
-      return setError("option", { type: "required" });
+      return setError('option', { type: 'required' });
     }
-    if (window.confirm("질문 ㄱ?")) {
+    if (window.confirm('질문 ㄱ?')) {
       try {
-        const res = await Axios.post("/questions/", { title, category, options });
+        const res = await Axios.post('/questions/', { title, category, options });
         console.log(res);
-        window.alert("성공");
+        window.alert('성공');
         reset({ ...initialValue });
       } catch (err) {
         console.log(err);
@@ -54,9 +54,9 @@ export default function AddQuestions() {
           name="title"
           control={control}
           rules={{ required: true }}
-          render={({ field }) => <Input {...field} color={errors.title?.type ? "error" : ""} />}
+          render={({ field }) => <Input {...field} color={errors.title?.type ? 'error' : ''} />}
         />
-        {errors.title?.type === "required" && "제목 필수필수!!"}
+        {errors.title?.type === 'required' && '제목 필수필수!!'}
         <ButtonGroup>
           {categories?.map((c) => (
             <Controller
@@ -67,8 +67,8 @@ export default function AddQuestions() {
               render={({ field }) => (
                 <Button
                   key={c.key}
-                  color={category === c.key ? "secondary" : "primary"}
-                  onClick={() => setValue("category", c.key)}
+                  color={category === c.key ? 'secondary' : 'primary'}
+                  onClick={() => setValue('category', c.key)}
                   {...field}
                 >
                   {c.value}
@@ -76,7 +76,7 @@ export default function AddQuestions() {
               )}
             />
           ))}
-          {errors.category?.type === "required" && "카테고리 선택 필수필수!!"}
+          {errors.category?.type === 'required' && '카테고리 선택 필수필수!!'}
         </ButtonGroup>
         <div>선택지!!!</div>
         {fields.map((item, index) => {
@@ -94,14 +94,14 @@ export default function AddQuestions() {
             </div>
           );
         })}
-        {errors.option?.type === "required" && "선택지 최소 2개 이상!! 필수필수!!"}
+        {errors.option?.type === 'required' && '선택지 최소 2개 이상!! 필수필수!!'}
 
         <section>
           <Button
             type="button"
             color="info"
             onClick={() => {
-              append({ value: "" });
+              append({ value: '' });
             }}
           >
             +

@@ -55,7 +55,7 @@ func NewTokenMiddleware(secret string) echo.MiddlewareFunc {
 					cookie.Value =  ""
 					cookie.HttpOnly = true
 					cookie.Path= "/"
-					cookie.MaxAge =   0
+					cookie.MaxAge = 0
 					c.SetCookie(cookie)
 					return httpUtils.NewForbiden(parseErr)
 				}

@@ -1,15 +1,23 @@
 //
 // Copyright 2021 lemonade
 //
-import React, { useEffect } from "react";
-import Axios from "../utils/axios";
+import React, { useEffect, useState } from 'react';
+
+import Axios from '../utils/axios';
+import Layout from '../components/layout';
 
 function WrappedApp({ Component, pageProps }) {
+  const [isLogin, setLogin] = useState(false);
   useEffect(async () => {
-    await Axios.get("/session");
+    const data = await Axios.get('/session');
+    console.log(data);
   }, []);
 
-  return <Component {...pageProps} />;
+  return (
+    <Layout isLogin={isLogin}>
+      <Component {...pageProps} />
+    </Layout>
+  );
 }
 
 export default WrappedApp;
