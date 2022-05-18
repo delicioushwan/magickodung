@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: magic-kodung-server
+  labels:
+    app: mk-back
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mk-back
+  template:
+    metadata:
+      labels:
+        app: mk-back
+    spec:
+      containers:
+        - name: mk-back
+          image: back
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9091
