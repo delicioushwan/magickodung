@@ -63,7 +63,7 @@ export default function Questions() {
   }, []);
 
   useEffect(() => {
-    if (!questions[0]) return;
+    if (!questions?.[0]) return;
     setQuestion(questions[0]);
     console.log('runhere');
     console.log('questions[0].questionId', questions[0], questions[0]?.questionId);

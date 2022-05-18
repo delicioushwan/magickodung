@@ -28,7 +28,6 @@ func RegisterPath(
 ) {
 
 	jwtMiddleware := authUtils.NewJWTMiddleware(config.Secret)
-	// authorizeMiddleware := authUtils.NewAuthorizeMiddleware(config.Secret)
 
 	e.GET("/session", Session)
 	e.GET("/category", category.GetCategory())
